@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rut Sport — Спортивный магазин</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Rut <span>Sport</span></a>
+      <button class="menu-toggle" id="menuToggle">☰</button>
+      <nav class="nav">
+        <a href="index.html" class="active" data-i18n="home">Главная</a>
+        <a href="catalog.html" data-i18n="catalog">Каталог</a>
+        <a href="cart.html" data-i18n="cart">Корзина</a>
+        <a href="favorites.html" data-i18n="favorites">Избранное</a>
+        <a href="profile.html" data-i18n="profile">Профиль</a>
+      </nav>
+      <div class="header-actions">
+        <div class="lang-switch">
+          <button class="lang-btn" data-lang="uz">UZ</button>
+          <button class="lang-btn active" data-lang="ru">RU</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+        </div>
+        <button class="icon-btn" id="themeToggle" title="Тема">🌙</button>
+        <a href="favorites.html" class="icon-btn">
+          ❤️ <span class="badge fav-badge">0</span>
+        </a>
+        <a href="cart.html" class="icon-btn">
+          🛒 <span class="badge cart-badge">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="hero">
+      <h1 data-i18n="heroTitle">Rut Sport</h1>
+      <p data-i18n="heroSubtitle">Обнови свой спортивный стиль. Лучшие бренды, лучшие цены.</p>
+      <a href="catalog.html" class="btn btn-primary" style="background:#fff;color:#e63946;" data-i18n="shopNow">Купить сейчас</a>
+    </section>
+
+    <section class="mb-20">
+      <h2 class="section-title" data-i18n="categories">Категории</h2>
+      <div class="categories-grid">
+        <a href="catalog.html?cat=shoes" class="category-card">
+          <div class="icon">👟</div>
+          <h3 data-i18n-cat="shoes">Обувь</h3>
+        </a>
+        <a href="catalog.html?cat=clothing" class="category-card">
+          <div class="icon">👕</div>
+          <h3 data-i18n-cat="clothing">Одежда</h3>
+        </a>
+        <a href="catalog.html?cat=equipment" class="category-card">
+          <div class="icon">🏋️</div>
+          <h3 data-i18n-cat="equipment">Инвентарь</h3>
+        </a>
+        <a href="catalog.html?cat=accessories" class="category-card">
+          <div class="icon">⌚</div>
+          <h3 data-i18n-cat="accessories">Аксессуары</h3>
+        </a>
+      </div>
+    </section>
+
+    <section class="mb-20">
+      <h2 class="section-title">
+        <span data-i18n="featured">Рекомендуем</span>
+        <a href="catalog.html" class="btn btn-sm btn-outline" data-i18n="catalog">Каталог</a>
+      </h2>
+      <div class="products-grid" id="featuredProducts"></div>
+    </section>
+
+    <section>
+      <h2 class="section-title" data-i18n="bestsellers">Хиты продаж</h2>
+      <div class="products-grid" id="bestsellerProducts"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <h4>Rut Sport</h4>
+        <p style="color:var(--text-secondary);font-size:0.9rem;" data-i18n="about">О нас</p>
+      </div>
+      <div>
+        <h4 data-i18n="contact">Контакты</h4>
+        <a href="tel:+998901234567">+998 90 123 45 67</a>
+        <a href="mailto:info@rutsport.uz">info@rutsport.uz</a>
+      </div>
+      <div>
+        <h4 data-i18n="delivery">Доставка</h4>
+        <a href="#">Tashkent — 1 день</a>
+        <a href="#">Uzbekistan — 2-4 дня</a>
+      </div>
+      <div>
+        <h4 data-i18n="returns">Возврат</h4>
+        <a href="#">14 дней</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2025 Rut Sport. <span data-i18n="rights">Все права защищены</span>
+    </div>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    function renderHome() {
+      const lang = getLang();
+      // Category names
+      document.querySelectorAll('[data-i18n-cat]').forEach(el => {
+        const key = el.getAttribute('data-i18n-cat');
+        el.textContent = CATEGORIES[key][lang];
+      });
+      // Featured: first 8
+      const featured = PRODUCTS.slice(0, 8);
+      document.getElementById('featuredProducts').innerHTML = featured.map(productCardHTML).join('');
+      // Bestsellers: highest rating
+      const best = [...PRODUCTS].sort((a,b) => b.rating - a.rating).slice(0, 8);
+      document.getElementById('bestsellerProducts').innerHTML = best.map(productCardHTML).join('');
+    }
+    window.onLangChange = renderHome;
+    document.addEventListener('DOMContentLoaded', renderHome);
+  </script>
+</body>
+</html>

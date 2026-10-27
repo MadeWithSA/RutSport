@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Корзина — Rut Sport</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Rut <span>Sport</span></a>
+      <button class="menu-toggle" id="menuToggle">☰</button>
+      <nav class="nav">
+        <a href="index.html" data-i18n="home">Главная</a>
+        <a href="catalog.html" data-i18n="catalog">Каталог</a>
+        <a href="cart.html" class="active" data-i18n="cart">Корзина</a>
+        <a href="favorites.html" data-i18n="favorites">Избранное</a>
+        <a href="profile.html" data-i18n="profile">Профиль</a>
+      </nav>
+      <div class="header-actions">
+        <div class="lang-switch">
+          <button class="lang-btn" data-lang="uz">UZ</button>
+          <button class="lang-btn active" data-lang="ru">RU</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+        </div>
+        <button class="icon-btn" id="themeToggle">🌙</button>
+        <a href="favorites.html" class="icon-btn">❤️ <span class="badge fav-badge">0</span></a>
+        <a href="cart.html" class="icon-btn">🛒 <span class="badge cart-badge">0</span></a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <h1 class="section-title" data-i18n="yourCart">Ваша корзина</h1>
+    <div id="cartContent"></div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-bottom">© 2025 Rut Sport. <span data-i18n="rights">Все права защищены</span></div>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    function renderCart() {
+      const cart = getCart();
+      const lang = getLang();
+      const container = document.getElementById('cartContent');
+
+      if (cart.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">🛒</div>
+            <p data-i18n="emptyCart">${t('emptyCart')}</p>
+            <a href="catalog.html" class="btn btn-primary mt-20" data-i18n="continueShopping">${t('continueShopping')}</a>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '<div class="cart-list">';
+      cart.forEach(item => {
+        const p = PRODUCTS.find(pr => pr.id === item.id);
+        if (!p) return;
+        html += `
+          <div class="cart-item">
+            <a href="product.html?id=${p.id}"><img src="${p.image}" alt="${p.name[lang]}" onerror="this.src='https://via.placeholder.com/100'"></a>
+            <div class="cart-item-info">
+              <h3><a href="product.html?id=${p.id}">${p.name[lang]}</a></h3>
+              <div class="meta">${t('size')}: ${item.size}</div>
+              <div class="price">${formatPrice(p.price)}</div>
+              <div class="qty-control" style="margin-top:8px;">
+                <button onclick="updateCartQty(${p.id}, '${item.size}', ${item.qty - 1})">−</button>
+                <span>${item.qty}</span>
+                <button onclick="updateCartQty(${p.id}, '${item.size}', ${item.qty + 1})">+</button>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div class="price" style="margin-bottom:8px;">${formatPrice(p.price * item.qty)}</div>
+              <button class="btn btn-sm btn-outline" onclick="removeFromCart(${p.id}, '${item.size}')" data-i18n="remove">${t('remove')}</button>
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      html += `
+        <div class="cart-summary">
+          <div class="row total">
+            <span data-i18n="total">${t('total')}</span>
+            <span>${formatPrice(getCartTotal())}</span>
+          </div>
+          <button class="btn btn-primary btn-block" id="checkoutBtn" onclick="checkout()" data-i18n="checkout">${t('checkout')}</button>
+        </div>
+      `;
+      container.innerHTML = html;
+    }
+
+    window.onLangChange = renderCart;
+    document.addEventListener('DOMContentLoaded', renderCart);
+  </script>
+</body>
+</html>

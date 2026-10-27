@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Каталог — Rut Sport</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Rut <span>Sport</span></a>
+      <button class="menu-toggle" id="menuToggle">☰</button>
+      <nav class="nav">
+        <a href="index.html" data-i18n="home">Главная</a>
+        <a href="catalog.html" class="active" data-i18n="catalog">Каталог</a>
+        <a href="cart.html" data-i18n="cart">Корзина</a>
+        <a href="favorites.html" data-i18n="favorites">Избранное</a>
+        <a href="profile.html" data-i18n="profile">Профиль</a>
+      </nav>
+      <div class="header-actions">
+        <div class="lang-switch">
+          <button class="lang-btn" data-lang="uz">UZ</button>
+          <button class="lang-btn active" data-lang="ru">RU</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+        </div>
+        <button class="icon-btn" id="themeToggle">🌙</button>
+        <a href="favorites.html" class="icon-btn">❤️ <span class="badge fav-badge">0</span></a>
+        <a href="cart.html" class="icon-btn">🛒 <span class="badge cart-badge">0</span></a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <h1 class="section-title" data-i18n="catalog">Каталог</h1>
+    <div class="catalog-layout">
+      <aside class="sidebar">
+        <div class="filter-group">
+          <h3 data-i18n="filters">Фильтры</h3>
+          <h4 style="margin:12px 0 8px;font-size:0.9rem;" data-i18n="categories">Категории</h4>
+          <label><input type="radio" name="cat" value="all" checked> <span data-cat="all">Все</span></label>
+          <label><input type="radio" name="cat" value="shoes"> <span data-cat="shoes">Обувь</span></label>
+          <label><input type="radio" name="cat" value="clothing"> <span data-cat="clothing">Одежда</span></label>
+          <label><input type="radio" name="cat" value="equipment"> <span data-cat="equipment">Инвентарь</span></label>
+          <label><input type="radio" name="cat" value="accessories"> <span data-cat="accessories">Аксессуары</span></label>
+        </div>
+      </aside>
+      <div>
+        <div class="catalog-toolbar">
+          <div class="search-box">
+            <input type="text" id="searchInput" data-i18n-placeholder="search" placeholder="Поиск...">
+          </div>
+          <select id="sortSelect">
+            <option value="default" data-i18n="sortBy">Сортировка</option>
+            <option value="price-asc" data-i18n="sortPriceAsc">Цена: дешевле</option>
+            <option value="price-desc" data-i18n="sortPriceDesc">Цена: дороже</option>
+            <option value="rating" data-i18n="sortRating">По рейтингу</option>
+            <option value="name" data-i18n="sortName">По названию</option>
+          </select>
+        </div>
+        <div class="products-grid" id="catalogGrid"></div>
+        <p id="noProducts" class="empty-state hidden" data-i18n="noProducts">Товары не найдены</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div><h4>Rut Sport</h4></div>
+      <div><h4 data-i18n="contact">Контакты</h4><a href="tel:+998901234567">+998 90 123 45 67</a></div>
+    </div>
+    <div class="footer-bottom">© 2025 Rut Sport. <span data-i18n="rights">Все права защищены</span></div>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let currentCat = 'all';
+    let currentSort = 'default';
+    let searchQuery = '';
+
+    function renderCatalog() {
+      const lang = getLang();
+      // Update category labels
+      document.querySelectorAll('[data-cat]').forEach(el => {
+        const key = el.getAttribute('data-cat');
+        el.textContent = CATEGORIES[key][lang];
+      });
+
+      let list = [...PRODUCTS];
+      if (currentCat !== 'all') list = list.filter(p => p.category === currentCat);
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        list = list.filter(p => p.name[lang].toLowerCase().includes(q) || p.description[lang].toLowerCase().includes(q));
+      }
+      if (currentSort === 'price-asc') list.sort((a,b) => a.price - b.price);
+      else if (currentSort === 'price-desc') list.sort((a,b) => b.price - a.price);
+      else if (currentSort === 'rating') list.sort((a,b) => b.rating - a.rating);
+      else if (currentSort === 'name') list.sort((a,b) => a.name[lang].localeCompare(b.name[lang]));
+
+      const grid = document.getElementById('catalogGrid');
+      const no = document.getElementById('noProducts');
+      if (list.length === 0) {
+        grid.innerHTML = '';
+        no.classList.remove('hidden');
+      } else {
+        no.classList.add('hidden');
+        grid.innerHTML = list.map(productCardHTML).join('');
+      }
+    }
+
+    window.onLangChange = renderCatalog;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check URL param
+      const params = new URLSearchParams(location.search);
+      const cat = params.get('cat');
+      if (cat && CATEGORIES[cat]) {
+        currentCat = cat;
+        document.querySelector(`input[name="cat"][value="${cat}"]`).checked = true;
+      }
+      renderCatalog();
+
+      document.querySelectorAll('input[name="cat"]').forEach(r => {
+        r.addEventListener('change', () => {
+          currentCat = r.value;
+          renderCatalog();
+        });
+      });
+      document.getElementById('sortSelect').addEventListener('change', e => {
+        currentSort = e.target.value;
+        renderCatalog();
+      });
+      document.getElementById('searchInput').addEventListener('input', e => {
+        searchQuery = e.target.value.trim();
+        renderCatalog();
+      });
+    });
+  </script>
+</body>
+</html>
